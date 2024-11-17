@@ -1,0 +1,56 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment directories
+env/
+venv/
+
+# Ignore version control directories
+.git/
+.gitignore
+
+# Ignore node_modules (if using Node.js dependencies for frontend or other)
+node_modules/
+
+# Ignore Docker-specific files
+Dockerfile
+docker-compose.yml
+
+# Ignore logs
+*.log
+*.out
+*.err
+
+# Ignore temporary and backup files
+*.swp
+*.tmp
+*.bak
+*.old
+*.orig
+
+
+
+# Ignore local data files
+*.csv
+*.tsv
+*.json
+*.db
+
+# Ignore any IDE-specific files or folders
+.idea/
+.vscode/
+
+# Ignore the MongoDB Spark connector JAR file (already mapped in volumes)
+mongo-spark-connector_2.12-3.0.1-assembly.jar
+
+# Ignore any build artifacts or temporary files
+build/
+dist/
+*.egg-info/
+
+# Ignore test coverage files
+.coverage
+htmlcov/
