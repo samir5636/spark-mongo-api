@@ -4,3 +4,5 @@ pyspark
 pandas
 pymongo[srv]
 pydantic
+pandas
+openpyxl

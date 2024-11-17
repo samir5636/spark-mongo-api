@@ -1,53 +1,51 @@
-import pandas as pd
-from pymongo import MongoClient
+from fastapi import FastAPI
+from pyspark.sql import SparkSession
+from pyspark.sql.utils import Py4JJavaError
+from pydantic import BaseModel
+from typing import List
 
-# MongoDB connection details
+# FastAPI app initialization
+app = FastAPI()
+
+# MongoDB configuration
 MONGO_URI = "mongodb+srv://samirziani:samir5636123@cluster0.ghz8l.mongodb.net/"
-DATABASE_NAME = "sample_mflix"
-COLLECTION_NAME = "articles"
+DATABASE = "sample_mflix"
+COLLECTION = "articles"
 
-# Paths to the Excel files
-excel_files = ["data/merged data 1.xls", "data/merged data 2.xls", "data/merged data 3.xls"]
+# Initialize Spark session with MongoDB connector
+def get_spark_session():
+    return (
+        SparkSession.builder.appName("MongoDBTest")
+        .config("spark.mongodb.read.connection.uri", MONGO_URI)
+        .config("spark.mongodb.write.connection.uri", MONGO_URI)
+        .config("spark.mongodb.read.database", DATABASE)
+        .config("spark.mongodb.read.collection", COLLECTION)
+        .getOrCreate()
+    )
 
-# Connect to MongoDB
-try:
-    client = MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    collection = db[COLLECTION_NAME]
-    print("Connected to MongoDB!")
-except Exception as e:
-    print(f"Failed to connect to MongoDB: {e}")
-    exit()
+# Data model for the API response
+class Article(BaseModel):
+    title: str
+    content: str
 
-# Process each Excel file
-for file_path in excel_files:
+# Test MongoDB connection route
+@app.get("/test-mongo", response_model=List[Article])
+async def test_mongo():
     try:
-        # Load Excel data
-        data = pd.read_excel(file_path)
+        spark = get_spark_session()
+        # Load data from MongoDB into a Spark DataFrame
+        df = spark.read.format("mongodb").load()
 
-        # Convert DataFrame to dictionary
-        articles = data.to_dict(orient="records")
+        # Select specific columns and convert to Pandas for easier handling
+        articles = df.select("title", "content").toPandas()
 
-        # Insert documents into MongoDB
-        for article in articles:
-            # Check for duplicates using a combination of `doi`, `author`, and `title`
-            query = {
-                "doi": article.get("doi", ""),
-                "author": article.get("author", ""),
-                "title": article.get("title", "")
-            }
+        # Convert the Pandas DataFrame to a list of dictionaries
+        response = articles.to_dict(orient="records")
 
-            # Skip insertion if a duplicate is found
-            if collection.find_one(query):
-                print(f"Skipped existing article: {article['title']} by {article['author']} (DOI: {article['doi']})")
-                continue
+        # Return the response
+        return response
 
-            # Insert all fields from the article into the database
-            collection.insert_one(article)
-            print(f"Inserted article: {article.get('title', 'N/A')} by {article.get('author', 'N/A')} (DOI: {article.get('doi', 'N/A')})")
+    except Py4JJavaError as e:
+        return {"error": "An error occurred while reading from MongoDB", "details": str(e)}
     except Exception as e:
-        print(f"Failed to process file {file_path}: {e}")
-
-# Close MongoDB connection
-client.close()
-print("Finished processing all files.")
+        return {"error": "An unexpected error occurred", "details": str(e)}

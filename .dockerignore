@@ -43,8 +43,7 @@ docker-compose.yml
 .idea/
 .vscode/
 
-# Ignore the MongoDB Spark connector JAR file (already mapped in volumes)
-mongo-spark-connector_2.12-3.0.1-assembly.jar
+
 
 # Ignore any build artifacts or temporary files
 build/
