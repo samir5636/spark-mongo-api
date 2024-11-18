@@ -6,3 +6,4 @@ pymongo[srv]
 pydantic
 pandas
 openpyxl
+mongo-spark-connector==10.0.3

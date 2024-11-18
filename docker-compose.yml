@@ -7,8 +7,7 @@ services:
     ports:
       - "8080:8080" # Spark Web UI
       - "7077:7077" # Spark Master Port
-    volumes:
-      - ./mongo-spark-connector-10.0.4-all.jar:/opt/spark/jars/mongo-spark-connector.jar
+
 
   spark-worker:
     image: bitnami/spark:latest
@@ -18,10 +17,9 @@ services:
     environment:
       SPARK_MODE: worker
       SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_MEMORY: 2g
       SPARK_MASTER_URL: spark://spark-master:7077
-    volumes:
-      - ./mongo-spark-connector-10.0.4-all.jar:/opt/spark/jars/mongo-spark-connector.jar
+
 
 
   fastapi:
@@ -32,7 +30,6 @@ services:
       - "8000:8000"
     depends_on:
       - spark-master
-      - mongodb
     volumes:
       - ./src:/app/src
       - ./data:/app/data
