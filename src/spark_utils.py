@@ -18,6 +18,22 @@ def get_spark_session():
         .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.4.0") \
         .getOrCreate()
     )
+    
+def count_publications_by_column(spark: SparkSession, column_name: str):
+    """
+    Count the number of publications grouped by a specific column.
+    """
+    try:
+        articles_df = load_articles(spark)
+        count_df = (
+            articles_df.groupBy(column_name)
+            .count()
+            .withColumnRenamed("count", "num_pub")
+            .orderBy(column_name)
+        )
+        return count_df.toPandas().to_dict(orient="records")
+    except Exception as e:
+        raise RuntimeError(f"Failed to count publications by {column_name}: {e}")
 
 def load_articles(spark: SparkSession):
     """
