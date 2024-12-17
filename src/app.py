@@ -14,6 +14,9 @@ from src.publications.get_publications_by_university import router as pub_univer
 from src.publications.get_publications_by_month import router as pub_month_router
 from src.publications.get_publications_with_filters import router as pub_search_router
 from src.publications.get_publications_count_by_parameter import router as pub_count_router
+from src.publications.getcount_pub_by_year_count import router as pub_count_by_year_router
+from src.publications.getcount_pub_by_country import router as pub_count_by_country_router
+from src.publications.getcount_pub_by_month import router as pub_count_by_month_router 
 app = FastAPI()
 
 app.include_router(year_router, prefix="/api")
@@ -32,5 +35,13 @@ app.include_router(pub_quartile_router, prefix="/api")
 app.include_router(pub_university_router, prefix="/api")
 app.include_router(pub_month_router, prefix="/api")
 app.include_router(pub_search_router, prefix="/api")
+
+
 #count number of publications by parameter filter
 app.include_router(pub_count_router, prefix="/api")
+
+app.include_router(pub_count_by_year_router, prefix="/api") 
+
+app.include_router(pub_count_by_country_router, prefix="/api")
+
+app.include_router(pub_count_by_month_router, prefix="/api")
